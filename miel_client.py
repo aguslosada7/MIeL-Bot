@@ -1,44 +1,12 @@
 """
 Cliente de MIeL: inicia sesión y recorre la mensajería de cada materia
-buscando mensajes sin leer, SIN abrir ningún mensaje individual (eso es
-lo que los marcaría como leídos en MIeL).
+buscando mensajes sin leer, SIN abrir ningún mensaje individual (para
+no marcarlos como leídos).
 
 Selectores confirmados a partir del HTML real de:
-  - https://miel.unlam.edu.ar/principal/home/           (login)
-  - https://miel.unlam.edu.ar/principal/interno/         (materias activas)
-  - https://miel.unlam.edu.ar/mensajeria/entrada/comision/<id>  (bandeja)
-
-Notas sobre cómo funciona MIeL (según el HTML provisto):
-
-- El login NO es un <form> tradicional: el botón #btnLogin dispara un
-  POST por AJAX a /principal/event/login/ y, si las credenciales son
-  correctas (data.estado == 0), el JS hace
-  `window.location = '.../principal/interno/'`. Por eso esperamos a
-  que la URL cambie en vez de esperar una navegación de formulario.
-
-- Cada materia en "Materias activas" es un
-  `div.materia-bloque[data-id="<idComision>"]`, con el nombre en
-  `div.materia-titulo`. El id de comisión (data-id) es exactamente el
-  que se usa en la URL de mensajería:
-  https://miel.unlam.edu.ar/mensajeria/entrada/comision/<idComision>
-  Por eso NO hace falta parsear el ícono/badge de "Mensajes": directo
-  se arma la URL de mensajería a partir del data-id y se entra ahí.
-
-- En la bandeja de entrada, cada fila de mensaje es un `<tr>` dentro de
-  `table.tabla-mensajes`. MIeL le agrega la clase `mensaje-no-leido` a
-  las filas no leídas y `mensaje-leido` a las ya leídas (se ve en el JS
-  de la página: `filaDelMensaje.addClass('mensaje-no-leido')`). Esto es
-  server-side en la carga inicial, así que con solo hacer GET a la
-  página (sin clickear nada) podemos filtrar `tr.mensaje-no-leido`.
-  Columnas de cada fila: [0] Fecha, [1] Remitente, [2] ícono extra,
-  [3] Asunto (dentro de `a.verMensaje`), [4] acciones, [5] fecha lectura.
-
-- La bandeja puede estar paginada ("Página X de Y" arriba a la
-  derecha). Si hay más de una página, se recorren agregando /pag/<n>/
-  a la URL de mensajería (patrón visto en los links de detalle de
-  mensaje: .../pag/1/from/entrada/id/...). Si ese patrón de paginación
-  cambiara, el bot simplemente deja de encontrar más páginas y sigue
-  con lo que ya juntó (no rompe).
+  - https://miel.unlam.edu.ar/principal/home/ (login)
+  - https://miel.unlam.edu.ar/principal/interno/ (materias activas)
+  - https://miel.unlam.edu.ar/mensajeria/entrada/comision/<id> (bandeja)
 """
 from __future__ import annotations
 
@@ -213,7 +181,7 @@ class MielClient:
 
                 mensajes.append(Mensaje(remitente=remitente, asunto=asunto, fecha=fecha))
 
-            # ¿Hay más páginas? Buscamos el texto "Página X de Y".
+            # ¿Hay más páginas? Se busca el texto "Página X de Y".
             total_paginas = self._detectar_total_paginas(soup)
             if total_paginas is None or pagina >= total_paginas:
                 break

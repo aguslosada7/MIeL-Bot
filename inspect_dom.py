@@ -5,9 +5,8 @@ que en general NO hace falta correr esto. Es útil solo si:
 
   - MIeL cambia de diseño en el futuro y el bot deja de encontrar
     materias o mensajes.
-  - Querés confirmar a mano cómo se ve la paginación de mensajería
-    cuando hay más de una página de mensajes (algo que no pudimos
-    verificar de antemano).
+  - Se quiere confirmar a mano cómo se ve la paginación de mensajería
+    cuando hay más de una página de mensajes.
 
 Guarda el HTML de la página de materias y, opcionalmente, de una
 bandeja de mensajería puntual, para inspeccionarlo.
