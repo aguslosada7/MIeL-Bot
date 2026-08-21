@@ -70,12 +70,34 @@ def revisar_miel_sync() -> list[tuple[str, "Mensaje"]]:  # noqa: F821 - tipo de 
         client.close()
     return nuevos
 
+async def obtener_destino():
+    destino = bot.get_channel(settings.discord_channel_id)
+    if destino is not None:
+        return destino
+
+    try:
+        return await bot.fetch_channel(settings.discord_channel_id)
+    except (discord.NotFound, discord.Forbidden, discord.HTTPException):
+        pass
+
+    try:
+        usuario = await bot.fetch_user(settings.discord_channel_id)
+        return await usuario.create_dm()
+    except (discord.NotFound, discord.Forbidden, discord.HTTPException) as exc:
+        log.error(
+            "No se pudo resolver el destino %s ni como canal ni como usuario: %s",
+            settings.discord_channel_id,
+            exc,
+        )
+        return None
 
 async def notificar(materia_nombre: str, mensaje) -> None:  # noqa: ANN001
-    canal = bot.get_channel(settings.discord_channel_id)
+    canal = await obtener_destino()
     if canal is None:
         log.error(
-            "No se encontró el canal %s. ¿El bot está en ese servidor y tiene permisos?",
+            "No se encontró el canal/usuario %s. Si es un DM, confirmá que el "
+            "ID sea el del USUARIO (no de un canal) y que el bot comparta al "
+            "menos un servidor con esa persona.",
             settings.discord_channel_id,
         )
         return
@@ -93,7 +115,7 @@ async def notificar(materia_nombre: str, mensaje) -> None:  # noqa: ANN001
     state.marcar_notificado(mensaje.clave_unica(materia_nombre))
 
 
-@tasks.loop(seconds=1)  # el intervalo real se fija en on_ready (ver más abajo)
+@tasks.loop(seconds=1)  # el intervalo real se fija en on_ready
 async def revisar_periodicamente() -> None:
     log.info("Revisando MIeL...")
     try:
