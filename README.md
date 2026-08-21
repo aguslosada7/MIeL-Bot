@@ -1,6 +1,6 @@
-# MIeL Bot
+# MIeL-Bot
 
-MIeL Bot es un bot de Discord que avisa cuando llega un mensaje nuevo en MIeL (Materias Interactivas en Línea) sin necesidad de tener la página abierta y sin marcar los mensajes como leídos.
+MIeL-Bot es un bot de Discord que avisa cuando llega un mensaje nuevo en MIeL (Materias Interactivas en Línea) sin necesidad de tener la página abierta y sin marcar los mensajes como leídos.
 
 ## Funcionamiento
 
